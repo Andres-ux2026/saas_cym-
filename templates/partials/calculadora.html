@@ -66,10 +66,16 @@
                     <label class="result-label block mb-1">AFP</label>
                     <select id="afp" class="input-field">
                       <option value="">Seleccionar AFP...</option>
-                      {% for a in afps %}
-                      <option value="{{ a.nombre }}">{{ a.nombre }} ({{ a.total|floatformat:2 }}%)</option>
-                      {% endfor %}
+                      <option value="AFP Capital">AFP Capital (13.06%)</option>
+                      <option value="AFP Cuprum">AFP Cuprum (13.06%)</option>
+                      <option value="AFP Habitat">AFP Habitat (12.89%)</option>
+                      <option value="AFP Modelo">AFP Modelo (12.20%)</option>
+                      <option value="AFP PlanVital">AFP PlanVital (12.78%)</option>
+                      <option value="AFP ProVida">AFP ProVida (13.07%)</option>
+                      <option value="AFP UNO">AFP UNO (12.08%)</option>
+                      <option value="Sin AFP">Sin AFP (0.00%)</option>
                     </select>
+                    <script>(function(){var s=document.getElementById("afp");if(s&&s.options.length<=1){fetch("/api/tasas-afp").then(function(r){return r.json()}).then(function(d){if(d.tasas&&d.tasas.length){s.innerHTML='<option value="">Seleccionar AFP...</option>'+d.tasas.map(function(a){return'<option value="'+a.nombre+'">'+a.nombre+' ('+(a.tasa_cotizacion+a.tasa_sis).toFixed(2)+'%)</option>'}).join("")}}).catch(function(){})}})()</script>
                 </div>
                 <div>
                     <label class="result-label block mb-1">Salud</label>
