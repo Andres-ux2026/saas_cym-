@@ -13,7 +13,10 @@ async function cargarParametros() {
             fetch("/api/tasas-afp"),
             fetch("/api/tramos-impuesto"),
         ]);
-        if (!paramRes.ok) throw new Error("Parámetros no disponibles (ejecuta scraping o siembra datos)");
+        if (!paramRes.ok) {
+            const errText = await paramRes.text().catch(function() { return "sin cuerpo"; });
+            throw new Error("Parámetros no disponibles (HTTP " + paramRes.status + ": " + errText + ")");
+        }
         estado.parametros = await paramRes.json();
         const afpData = await afpRes.json();
         estado.tasas_afp = afpData.tasas || [];
@@ -22,7 +25,8 @@ async function cargarParametros() {
     } catch (e) {
         document.getElementById("resultados-placeholder").innerHTML =
             `<i class="fas fa-exclamation-triangle text-4xl mb-3 text-red-400"></i>
-             <p class="text-sm text-red-300">${e.message}</p>`;
+             <p class="text-sm text-red-300">${e.message}</p>
+             <button onclick="location.reload()" class="mt-2 text-xs text-primary-400 hover:text-primary-300 underline">Reintentar</button>`;
         return;
     }
     poblarAFP();
