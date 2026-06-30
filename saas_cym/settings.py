@@ -77,7 +77,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LOGIN_URL = "/login/"
-LOGIN_REDIRECT_URL = "/calculadora/"
+LOGIN_REDIRECT_URL = "/app/"
 LOGOUT_REDIRECT_URL = "/"
 
 LANGUAGE_CODE = "es-cl"
