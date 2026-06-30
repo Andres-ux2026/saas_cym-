@@ -82,9 +82,12 @@
                 <i class="fas fa-calculator w-5 text-center text-accent-400"></i> Calculadora
             </a>
             <hr class="border-dark-700/50 my-3" />
-            <a href="/logout/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-500 hover:bg-white/5 hover:text-slate-300 transition-all">
-                <i class="fas fa-sign-out-alt w-5 text-center"></i> Salir
-            </a>
+            <form method="post" action="/logout/" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-500 hover:bg-white/5 hover:text-slate-300 transition-all cursor-pointer">
+                    <i class="fas fa-sign-out-alt w-5 text-center"></i> Salir
+                </button>
+            </form>
         </nav>
     </aside>
 
@@ -106,7 +109,10 @@
                     <a href="/app/finiquitos/" class="text-xs text-slate-400 px-2 py-1 rounded hover:text-white"><i class="fas fa-file-signature"></i></a>
                     <a href="/app/vacaciones/" class="text-xs text-slate-400 px-2 py-1 rounded hover:text-white"><i class="fas fa-umbrella-beach"></i></a>
                     <a href="/app/alertas/" class="text-xs text-slate-400 px-2 py-1 rounded hover:text-white"><i class="fas fa-bell"></i></a>
-                    <a href="/logout/" class="text-xs text-slate-500 px-2 py-1 rounded hover:text-slate-300"><i class="fas fa-sign-out-alt"></i></a>
+                    <form method="post" action="/logout/" class="inline m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="text-xs text-slate-500 px-2 py-1 rounded hover:text-slate-300 cursor-pointer"><i class="fas fa-sign-out-alt"></i></button>
+                    </form>
                 </div>
             </div>
         </header>
