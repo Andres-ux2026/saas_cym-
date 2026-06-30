@@ -326,3 +326,35 @@ function limpiarFormulario() {
     document.getElementById("resultados-content").classList.add("hidden");
     document.getElementById("btn-enviar-whatsapp").classList.add("hidden");
 }
+
+function actualizarParametros() {
+    var btn = document.getElementById("btn-actualizar-params");
+    var toast = document.getElementById("toast-params");
+    if (!btn || !toast) return;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>';
+    toast.className = 'text-xs px-3 py-2 rounded-lg mt-2 bg-primary-900/50 text-primary-300 border border-primary-700/50';
+    toast.textContent = "Actualizando parámetros desde PreviRed y SII...";
+    toast.classList.remove("hidden");
+    fetch("/api/parametros/actualizar", { method: "POST" })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.ok) {
+                toast.className = 'text-xs px-3 py-2 rounded-lg mt-2 bg-emerald-900/50 text-emerald-300 border border-emerald-700/50';
+                toast.textContent = "Parámetros actualizados correctamente";
+                cargarParametros();
+            } else {
+                toast.className = 'text-xs px-3 py-2 rounded-lg mt-2 bg-red-900/50 text-red-300 border border-red-700/50';
+                toast.textContent = data.error || "Error al actualizar";
+            }
+        })
+        .catch(function() {
+            toast.className = 'text-xs px-3 py-2 rounded-lg mt-2 bg-red-900/50 text-red-300 border border-red-700/50';
+            toast.textContent = "Error de conexión al actualizar parámetros";
+        })
+        .finally(function() {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sync-alt mr-1"></i>';
+            setTimeout(function() { toast.classList.add("hidden"); }, 6000);
+        });
+}

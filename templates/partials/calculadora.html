@@ -2,10 +2,14 @@
     <div class="glass-card p-5 space-y-4">
         <div class="flex items-center justify-between">
             <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Datos del trabajador</h2>
-            <div class="flex gap-1 bg-dark-800 rounded-lg p-0.5">
-                <button data-modo="bruto_a_liquido" class="modo-btn tab-active text-xs px-3 py-1.5 rounded-md font-medium transition-all">Bruto &rarr; Líquido</button>
-                <button data-modo="liquido_a_bruto" class="modo-btn text-xs px-3 py-1.5 rounded-md font-medium text-slate-400 hover:text-white transition-all">Líquido &rarr; Bruto</button>
+            <div class="flex items-center gap-1">
+                <div class="flex gap-1 bg-dark-800 rounded-lg p-0.5">
+                    <button data-modo="bruto_a_liquido" class="modo-btn tab-active text-xs px-3 py-1.5 rounded-md font-medium transition-all">Bruto &rarr; Líquido</button>
+                    <button data-modo="liquido_a_bruto" class="modo-btn text-xs px-3 py-1.5 rounded-md font-medium text-slate-400 hover:text-white transition-all">Líquido &rarr; Bruto</button>
+                </div>
+                <button id="btn-actualizar-params" onclick="actualizarParametros()" class="btn-secondary text-xs px-2 py-1.5 rounded-md" title="Actualizar parámetros previsionales (UF, UTM, tasas)"><i class="fas fa-sync-alt mr-1"></i></button>
             </div>
+            <div id="toast-params" class="hidden text-xs px-3 py-2 rounded-lg mt-2"></div>
         </div>
 
         <div class="space-y-3">
