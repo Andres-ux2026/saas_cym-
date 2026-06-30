@@ -31,6 +31,12 @@ def calculadora(request):
             "notificacion_whatsapp": config_voz.notificacion_whatsapp if config_voz else False,
             "numero_whatsapp_cliente": config_voz.numero_whatsapp_cliente if config_voz else "",
         } if config_voz else {},
+        "afps": [{
+            "nombre": a.nombre,
+            "tasa_cotizacion": float(a.tasa_cotizacion),
+            "tasa_sis": float(a.tasa_sis),
+            "total": float(a.tasa_cotizacion + a.tasa_sis),
+        } for a in TasaAFP.objects.filter(vigente_hasta__isnull=True).order_by("nombre")],
     }
     return render(request, "calculadora.html", ctx)
 
@@ -343,6 +349,40 @@ def api_plantillas_contrato(request):
     })
 
 
+@csrf_exempt
+@login_required
+def api_plantilla_guardar(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+    try:
+        data = json.loads(request.body)
+        p, created = PlantillaContrato.objects.update_or_create(
+            id=data.get("id"),
+            defaults={
+                "nombre": data["nombre"],
+                "cargo": data["cargo"],
+                "funciones": data.get("funciones", ""),
+                "clausulas": data.get("clausulas", ""),
+            },
+        )
+        return JsonResponse({"ok": True, "creado": created, "id": p.id})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+
+@csrf_exempt
+@login_required
+def api_plantilla_eliminar(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+    try:
+        data = json.loads(request.body)
+        PlantillaContrato.objects.get(id=data["id"]).delete()
+        return JsonResponse({"ok": True})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+
 @login_required
 def api_buscar_trabajador(request):
     rut = request.GET.get("rut", "").strip().upper()
@@ -456,15 +496,31 @@ def api_contratos_listar(request):
     return JsonResponse({
         "contratos": [{
             "id": c.id,
+            "rut_empresa": c.empresa.rut,
+            "razon_social_empresa": c.empresa.razon_social,
+            "rut_mandante": c.mandante.rut_mandante if c.mandante else None,
+            "nombre_mandante": c.mandante.razon_social_mandante if c.mandante else None,
+            "plantilla_id": c.plantilla.id if c.plantilla else None,
+            "tipo": c.tipo,
+            "tipo_display": c.get_tipo_display(),
+            "fecha_inicio": c.fecha_inicio.isoformat(),
+            "fecha_termino": c.fecha_termino.isoformat() if c.fecha_termino else None,
+            "nombre_faena": c.nombre_faena,
             "rut_trabajador": c.rut_trabajador,
             "nombres": c.nombres,
             "apellidos": c.apellidos,
-            "tipo": c.get_tipo_display(),
-            "empresa": c.empresa.razon_social,
-            "mandante": c.mandante.razon_social_mandante if c.mandante else None,
-            "fecha_inicio": c.fecha_inicio.isoformat(),
-            "fecha_termino": c.fecha_termino.isoformat() if c.fecha_termino else None,
+            "fecha_nacimiento": c.fecha_nacimiento.isoformat(),
+            "direccion": c.direccion,
+            "telefono": c.telefono,
+            "email": c.email,
+            "funciones": c.funciones,
+            "lugar_trabajo": c.lugar_trabajo,
+            "horas_semanales": c.horas_semanales,
             "sueldo_base": float(c.sueldo_base),
+            "colacion": float(c.colacion),
+            "movilizacion": float(c.movilizacion),
+            "periodicidad_pago": c.periodicidad_pago,
+            "clausulas_adicionales": c.clausulas_adicionales,
             "created_at": c.created_at.isoformat(),
         } for c in contratos]
     })

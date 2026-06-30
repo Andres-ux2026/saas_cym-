@@ -64,7 +64,12 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="result-label block mb-1">AFP</label>
-                    <select id="afp" class="input-field"></select>
+                    <select id="afp" class="input-field">
+                      <option value="">Seleccionar AFP...</option>
+                      {% for a in afps %}
+                      <option value="{{ a.nombre }}">{{ a.nombre }} ({{ a.total|floatformat:2 }}%)</option>
+                      {% endfor %}
+                    </select>
                 </div>
                 <div>
                     <label class="result-label block mb-1">Salud</label>

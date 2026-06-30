@@ -6,12 +6,14 @@ document.addEventListener("DOMContentLoaded", function () {
   listarLiquidaciones();
 });
 
+let _timeoutMsgLiq = null;
 function mostrarMensaje(texto, tipo) {
   const el = document.getElementById("mensaje");
+  if (_timeoutMsgLiq) clearTimeout(_timeoutMsgLiq);
   el.classList.remove("hidden", "bg-emerald-900/50", "text-emerald-300", "bg-red-900/50", "text-red-300");
   el.textContent = texto;
   el.classList.add(tipo === "ok" ? "bg-emerald-900/50 text-emerald-300" : "bg-red-900/50 text-red-300");
-  setTimeout(() => el.classList.add("hidden"), 4000);
+  _timeoutMsgLiq = setTimeout(() => el.classList.add("hidden"), 4000);
 }
 
 function listarLiquidaciones() {

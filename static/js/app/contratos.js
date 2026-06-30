@@ -1,20 +1,19 @@
 let streamCamara = null;
 let contratoEditandoId = null;
+let contratosDataCache = null;
 
 document.addEventListener("DOMContentLoaded", function () {
   listarContratos();
 });
 
+let _timeoutMsg = null;
 function mostrarMensaje(texto, tipo) {
   const el = document.getElementById("mensaje");
+  if (_timeoutMsg) clearTimeout(_timeoutMsg);
   el.classList.remove("hidden", "bg-emerald-900/50", "text-emerald-300", "bg-red-900/50", "text-red-300");
   el.textContent = texto;
-  if (tipo === "ok") {
-    el.classList.add("bg-emerald-900/50", "text-emerald-300");
-  } else {
-    el.classList.add("bg-red-900/50", "text-red-300");
-  }
-  setTimeout(() => el.classList.add("hidden"), 4000);
+  el.classList.add(tipo === "ok" ? "bg-emerald-900/50 text-emerald-300" : "bg-red-900/50 text-red-300");
+  _timeoutMsg = setTimeout(() => el.classList.add("hidden"), 4000);
 }
 
 function listarContratos() {
@@ -27,15 +26,16 @@ function listarContratos() {
         el.innerHTML = '<div class="text-center py-12 text-slate-500"><i class="fas fa-file-contract text-4xl mb-3 opacity-30"></i><p class="text-sm">No hay contratos registrados</p></div>';
         return;
       }
+      contratosDataCache = data.contratos;
       el.innerHTML = data.contratos.map(c => `
         <div class="glass-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2">
               <span class="font-medium text-white text-sm truncate">${c.nombres} ${c.apellidos}</span>
-              <span class="text-xs bg-emerald-900/40 text-emerald-300 px-2 py-0.5 rounded-full">${c.tipo}</span>
+              <span class="text-xs bg-emerald-900/40 text-emerald-300 px-2 py-0.5 rounded-full">${c.tipo_display}</span>
             </div>
             <div class="text-xs text-slate-400 mt-1">
-              RUT: ${c.rut_trabajador} · Empresa: ${c.empresa} · Sueldo: $${Number(c.sueldo_base).toLocaleString("es-CL")}
+              RUT: ${c.rut_trabajador} · Empresa: ${c.razon_social_empresa} · Sueldo: $${Number(c.sueldo_base).toLocaleString("es-CL")}
             </div>
             <div class="text-xs text-slate-500 mt-0.5">Inicio: ${c.fecha_inicio}${c.fecha_termino ? ' · Término: ' + c.fecha_termino : ''}</div>
           </div>
@@ -178,16 +178,44 @@ function guardarContrato(e) {
 }
 
 function editarContrato(id) {
-  fetch("/app/contratos/api/listar")
-    .then(r => r.json())
-    .then(data => {
-      const c = data.contratos.find(x => x.id === id);
-      if (!c) return;
-      mostrarFormulario(id);
-      fetch(`/app/contratos/api/listar?id=${id}`)
-        .then(r2 => r2.json())
-        .then(d2 => {});
-    });
+  const data = contratosDataCache;
+  if (!data) {
+    fetch("/app/contratos/api/listar")
+      .then(r => r.json())
+      .then(d => { contratosDataCache = d.contratos; rellenarFormulario(d.contratos.find(x => x.id === id)); });
+    return;
+  }
+  rellenarFormulario(data.find(x => x.id === id));
+}
+
+function rellenarFormulario(c) {
+  if (!c) return;
+  mostrarFormulario(c.id);
+  document.getElementById("contrato_id").value = c.id;
+  document.getElementById("rut_empresa").value = c.rut_empresa;
+  document.getElementById("rut_mandante").value = c.rut_mandante || "";
+  document.getElementById("plantilla_id").value = c.plantilla_id || "";
+  document.getElementById("tipo").value = c.tipo;
+  document.getElementById("fecha_inicio").value = c.fecha_inicio;
+  document.getElementById("fecha_termino").value = c.fecha_termino || "";
+  document.getElementById("nombre_faena").value = c.nombre_faena || "";
+  document.getElementById("rut_trabajador").value = c.rut_trabajador;
+  document.getElementById("nombres").value = c.nombres;
+  document.getElementById("apellidos").value = c.apellidos;
+  document.getElementById("fecha_nacimiento").value = c.fecha_nacimiento;
+  document.getElementById("direccion").value = c.direccion;
+  document.getElementById("telefono").value = c.telefono;
+  document.getElementById("email").value = c.email;
+  document.getElementById("funciones").value = c.funciones;
+  document.getElementById("lugar_trabajo").value = c.lugar_trabajo;
+  document.getElementById("horas_semanales").value = c.horas_semanales;
+  document.getElementById("sueldo_base").value = c.sueldo_base;
+  document.getElementById("colacion").value = c.colacion;
+  document.getElementById("movilizacion").value = c.movilizacion;
+  document.getElementById("periodicidad_pago").value = c.periodicidad_pago;
+  document.getElementById("clausulas_adicionales").value = c.clausulas_adicionales;
+  toggleTipoContrato();
+  setTimeout(() => document.getElementById("rut_empresa").dispatchEvent(new Event("change")), 100);
 }
 
 function eliminarContrato(id) {
@@ -307,7 +335,7 @@ function consultarAFP() {
 }
 
 function descargarPDFcontrato(id) {
-  const c = contratosData?.find(x => x.id === id);
+  const c = contratosDataCache?.find(x => x.id === id);
   if (c) {
     if (typeof generarPDFcontrato === "function") generarPDFcontrato(c);
     else mostrarMensaje("Error: librería PDF no disponible", "error");
@@ -316,6 +344,7 @@ function descargarPDFcontrato(id) {
   fetch("/app/contratos/api/listar")
     .then(r => r.json())
     .then(data => {
+      contratosDataCache = data.contratos;
       const c2 = data.contratos.find(x => x.id === id);
       if (c2 && typeof generarPDFcontrato === "function") generarPDFcontrato(c2);
     });
@@ -360,15 +389,97 @@ function getContratoFormData() {
   };
 }
 
-let contratosData = null;
-const origListar = listarContratos;
-listarContratos = function () {
-  origListar();
-  fetch("/app/contratos/api/listar")
+function toggleGestionPlantillas() {
+  const el = document.getElementById("gestion_plantillas");
+  el.classList.toggle("hidden");
+  if (!el.classList.contains("hidden")) listarPlantillas();
+}
+
+function listarPlantillas() {
+  fetch("/app/contratos/api/plantillas")
     .then(r => r.json())
-    .then(data => { contratosData = data.contratos; })
-    .catch(() => {});
-};
+    .then(data => {
+      const el = document.getElementById("lista_plantillas");
+      if (!data.plantillas?.length) {
+        el.innerHTML = '<p class="text-slate-500">Sin plantillas creadas.</p>';
+        return;
+      }
+      el.innerHTML = data.plantillas.map(p =>
+        `<div class="flex items-center justify-between py-1.5 border-b border-dark-700/30">
+          <div><span class="text-slate-200">${p.cargo}</span><span class="text-slate-500 ml-2">${p.nombre}</span></div>
+          <button onclick="eliminarPlantilla(${p.id})" class="text-red-400 hover:text-red-300 text-[10px]"><i class="fas fa-times"></i></button>
+        </div>`
+      ).join("");
+    });
+}
+
+function guardarPlantilla() {
+  const data = {
+    nombre: document.getElementById("pl_nombre").value,
+    cargo: document.getElementById("pl_cargo").value,
+    funciones: document.getElementById("pl_funciones").value,
+    clausulas: document.getElementById("pl_clausulas").value,
+  };
+  if (!data.nombre || !data.cargo) {
+    mostrarMensaje("Nombre y cargo son obligatorios", "error");
+    return;
+  }
+  fetch("/app/contratos/api/plantillas/guardar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRF() },
+    body: JSON.stringify(data),
+  })
+    .then(r => r.json())
+    .then(res => {
+      if (res.ok) {
+        mostrarMensaje("Plantilla guardada", "ok");
+        document.getElementById("pl_nombre").value = "";
+        document.getElementById("pl_cargo").value = "";
+        document.getElementById("pl_funciones").value = "";
+        document.getElementById("pl_clausulas").value = "";
+        listarPlantillas();
+        actualizarSelectPlantillas();
+      } else {
+        mostrarMensaje(res.error || "Error al guardar", "error");
+      }
+    });
+}
+
+function eliminarPlantilla(id) {
+  if (!confirm("¿Eliminar esta plantilla?")) return;
+  fetch("/app/contratos/api/plantillas/eliminar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRF() },
+    body: JSON.stringify({ id }),
+  })
+    .then(r => r.json())
+    .then(res => {
+      if (res.ok) {
+        mostrarMensaje("Plantilla eliminada", "ok");
+        listarPlantillas();
+        actualizarSelectPlantillas();
+      }
+    });
+}
+
+function actualizarSelectPlantillas() {
+  fetch("/app/contratos/api/plantillas")
+    .then(r => r.json())
+    .then(data => {
+      const sel = document.getElementById("plantilla_id");
+      const actual = sel.value;
+      sel.innerHTML = '<option value="">Sin plantilla</option>';
+      if (data.plantillas) {
+        data.plantillas.forEach(p => {
+          const opt = document.createElement("option");
+          opt.value = p.id;
+          opt.textContent = `${p.cargo} — ${p.nombre}`;
+          sel.appendChild(opt);
+        });
+      }
+      sel.value = actual;
+    });
+}
 
 function getCSRF() {
   return document.cookie.split("; ").find(r => r.startsWith("csrftoken="))?.split("=")[1] || "";

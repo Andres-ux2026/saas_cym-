@@ -7,25 +7,55 @@ const estado = {
 };
 
 async function cargarParametros() {
-    const [paramRes, afpRes, iuRes] = await Promise.all([
-        fetch("/api/parametros"),
-        fetch("/api/tasas-afp"),
-        fetch("/api/tramos-impuesto"),
-    ]);
-    estado.parametros = await paramRes.json();
-    const afpData = await afpRes.json();
-    estado.tasas_afp = afpData.tasas;
-    const iuData = await iuRes.json();
-    estado.tramos_iu = iuData.tramos;
+    try {
+        const [paramRes, afpRes, iuRes] = await Promise.all([
+            fetch("/api/parametros"),
+            fetch("/api/tasas-afp"),
+            fetch("/api/tramos-impuesto"),
+        ]);
+        if (!paramRes.ok) throw new Error("Parámetros no disponibles (ejecuta scraping o siembra datos)");
+        estado.parametros = await paramRes.json();
+        const afpData = await afpRes.json();
+        estado.tasas_afp = afpData.tasas || [];
+        const iuData = await iuRes.json();
+        estado.tramos_iu = iuData.tramos || [];
+    } catch (e) {
+        document.getElementById("resultados-placeholder").innerHTML =
+            `<i class="fas fa-exclamation-triangle text-4xl mb-3 text-red-400"></i>
+             <p class="text-sm text-red-300">${e.message}</p>`;
+        return;
+    }
     poblarAFP();
 }
 
 function poblarAFP() {
     const sel = document.getElementById("afp");
-    sel.innerHTML = estado.tasas_afp.map(a =>
-        `<option value="${a.nombre}">${a.nombre} (${(a.tasa_cotizacion + a.tasa_sis).toFixed(2)}%)</option>`
-    ).join("");
+    if (!sel) return;
+    if (!estado.tasas_afp.length) {
+        sel.innerHTML = '<option value="">Sin AFP disponible</option>';
+        return;
+    }
+    if (sel.options.length > 1) return;
+    sel.innerHTML = '<option value="">Seleccionar AFP...</option>' +
+        estado.tasas_afp.map(a =>
+            `<option value="${a.nombre}">${a.nombre} (${(a.tasa_cotizacion + a.tasa_sis).toFixed(2)}%)</option>`
+        ).join("");
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    var selAFP = document.getElementById("afp");
+    if (selAFP && selAFP.options.length <= 1) {
+        fetch("/api/tasas-afp")
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.tasas && data.tasas.length) {
+                    estado.tasas_afp = data.tasas;
+                    poblarAFP();
+                }
+            })
+            .catch(function() {});
+    }
+});
 
 function redondear(val) {
     return Math.round(val * 100) / 100;
@@ -77,6 +107,7 @@ function leerFormulario() {
 
 function calcularBrutoALiquido(d) {
     const p = estado.parametros;
+    if (!p) return { error: "Parámetros previsionales no cargados" };
     const utm = p.valor_utm;
     const uf = p.valor_uf;
 
@@ -137,6 +168,7 @@ function calcularBrutoALiquido(d) {
 
 function calcularLiquidoABruto(d) {
     const p = estado.parametros;
+    if (!p) return { error: "Parámetros previsionales no cargados" };
     const haberesNoImp = d.colacion + d.movilizacion + d.otros_no_imponibles;
     const objetivo = d.sueldo_base - haberesNoImp;
 
@@ -283,6 +315,7 @@ function mostrarResultados(r) {
 }
 
 function formatearPeso(valor) {
+    if (valor === undefined || valor === null || isNaN(valor) || !isFinite(valor)) return "$0";
     return "$" + Math.round(valor).toLocaleString("es-CL");
 }
 
