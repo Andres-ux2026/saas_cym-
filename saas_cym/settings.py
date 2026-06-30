@@ -94,8 +94,8 @@ STORAGES = {
     },
 }
 
+CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="https://*.onrender.com,https://*.githubpreview.dev", cast=Csv())
 if not DEBUG:
-    CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="https://*.onrender.com", cast=Csv())
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
