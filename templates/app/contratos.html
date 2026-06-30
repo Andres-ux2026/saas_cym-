@@ -1,0 +1,216 @@
+{% extends "app/base.html" %}
+{% block title %}CYM — Contratos{% endblock %}
+{% block extra_head %}
+<style>
+.camera-preview { max-width: 100%; border-radius: 0.75rem; background: #000; }
+.ocr-overlay { position: relative; }
+.ocr-overlay canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-white"><i class="fas fa-file-contract text-emerald-400 mr-3"></i>Contratos</h1>
+      <p class="text-sm text-slate-400 mt-1">Gestión de contratos de trabajo (Art. 10 Código del Trabajo)</p>
+    </div>
+    <button onclick="mostrarFormulario()" class="btn-primary flex items-center gap-2"><i class="fas fa-plus"></i> Nuevo Contrato</button>
+  </div>
+
+  <div id="mensaje" class="hidden px-4 py-3 rounded-lg text-sm"></div>
+
+  <div id="lista_contratos" class="space-y-3"></div>
+
+  <div id="form_contrato" class="hidden glass-card p-6">
+    <h2 class="text-lg font-semibold text-white mb-5 flex items-center gap-2">
+      <i class="fas fa-pen text-emerald-400"></i> <span id="titulo_form">Nuevo Contrato</span>
+    </h2>
+
+    <form id="contratoForm" class="space-y-6" onsubmit="return guardarContrato(event)">
+
+      <input type="hidden" id="contrato_id" value="">
+
+      <div class="bg-dark-800/50 rounded-lg p-4 border border-dark-700/50">
+        <h3 class="text-sm font-semibold text-emerald-400 mb-4"><i class="fas fa-briefcase mr-2"></i>Datos del Empleador</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Empresa</label>
+            <select id="rut_empresa" class="input-field" required>
+              <option value="">Seleccionar empresa...</option>
+              {% for e in empresas %}
+              <option value="{{ e.rut }}">{{ e.razon_social }} ({{ e.rut }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Mandante (opcional)</label>
+            <select id="rut_mandante" class="input-field">
+              <option value="">Sin mandante</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-dark-800/50 rounded-lg p-4 border border-dark-700/50">
+        <h3 class="text-sm font-semibold text-emerald-400 mb-4"><i class="fas fa-user mr-2"></i>Datos del Trabajador</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">RUT</label>
+            <div class="flex gap-2">
+              <input type="text" id="rut_trabajador" class="input-field" placeholder="12.345.678-9" oninput="formatearRUT(this); buscarTrabajador(this.value)" required>
+              <button type="button" onclick="abrirCamara()" class="btn-secondary px-3 text-xs" title="Escanear cédula"><i class="fas fa-camera"></i></button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Nombres</label>
+            <div class="flex gap-2">
+              <input type="text" id="nombres" class="input-field" required>
+              <button type="button" onclick="consultarAFP()" class="btn-secondary text-xs px-2 whitespace-nowrap" title="Consultar AFP en Superintendencia de Pensiones"><i class="fas fa-search"></i> AFP</button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Apellidos</label>
+            <input type="text" id="apellidos" class="input-field" required>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Fecha de Nacimiento</label>
+            <input type="date" id="fecha_nacimiento" class="input-field" required>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Teléfono</label>
+            <input type="tel" id="telefono" class="input-field" placeholder="+56 9 XXXX XXXX">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Email</label>
+            <input type="email" id="email" class="input-field" placeholder="correo@ejemplo.cl">
+          </div>
+        </div>
+        <div class="mt-3">
+          <label class="block text-xs font-medium text-slate-400 mb-1">Dirección</label>
+          <input type="text" id="direccion" class="input-field" placeholder="Calle, número, comuna" required>
+        </div>
+      </div>
+
+      <div class="bg-dark-800/50 rounded-lg p-4 border border-dark-700/50">
+        <h3 class="text-sm font-semibold text-emerald-400 mb-4"><i class="fas fa-file-signature mr-2"></i>Detalles del Contrato</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Plantilla (opcional)</label>
+            <select id="plantilla_id" class="input-field" onchange="cargarPlantilla(this)">
+              <option value="">Sin plantilla</option>
+              {% for p in plantillas %}
+              <option value="{{ p.id }}">{{ p.cargo }} — {{ p.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Tipo de Contrato</label>
+            <select id="tipo" class="input-field" onchange="toggleTipoContrato()" required>
+              <option value="indefinido">Indefinido</option>
+              <option value="plazo_fijo">Plazo Fijo</option>
+              <option value="faena">Por Faena</option>
+              <option value="part_time">Jornada Parcial</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Fecha de Inicio</label>
+            <input type="date" id="fecha_inicio" class="input-field" required>
+          </div>
+          <div id="div_fecha_termino">
+            <label class="block text-xs font-medium text-slate-400 mb-1">Fecha de Término</label>
+            <input type="date" id="fecha_termino" class="input-field">
+          </div>
+        </div>
+        <div id="div_nombre_faena" class="mt-3 hidden">
+          <label class="block text-xs font-medium text-slate-400 mb-1">Nombre de la Faena</label>
+          <input type="text" id="nombre_faena" class="input-field" placeholder="Ej: Proyecto Mina Norte">
+        </div>
+        <div class="mt-3">
+          <label class="block text-xs font-medium text-slate-400 mb-1">Funciones del Cargo</label>
+          <textarea id="funciones" class="input-field" rows="3" required></textarea>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Lugar de Trabajo</label>
+            <input type="text" id="lugar_trabajo" class="input-field" required>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Horas Semanales</label>
+            <input type="number" id="horas_semanales" class="input-field" value="45" min="1" max="45">
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-dark-800/50 rounded-lg p-4 border border-dark-700/50">
+        <h3 class="text-sm font-semibold text-emerald-400 mb-4"><i class="fas fa-dollar-sign mr-2"></i>Remuneración</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Sueldo Base ($)</label>
+            <input type="number" id="sueldo_base" class="input-field" min="0" step="1" required>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Colación ($)</label>
+            <input type="number" id="colacion" class="input-field" min="0" step="1" value="0">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Movilización ($)</label>
+            <input type="number" id="movilizacion" class="input-field" min="0" step="1" value="0">
+          </div>
+        </div>
+        <div class="mt-3">
+          <label class="block text-xs font-medium text-slate-400 mb-1">Periodicidad de Pago</label>
+          <select id="periodicidad_pago" class="input-field">
+            <option value="mensual">Mensual</option>
+            <option value="quincenal">Quincenal</option>
+            <option value="semanal">Semanal</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="bg-dark-800/50 rounded-lg p-4 border border-dark-700/50">
+        <h3 class="text-sm font-semibold text-emerald-400 mb-4"><i class="fas fa-list mr-2"></i>Cláusulas Adicionales</h3>
+        <textarea id="clausulas_adicionales" class="input-field" rows="4" placeholder="Cláusulas adicionales del contrato..."></textarea>
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <button type="button" onclick="cancelarFormulario()" class="btn-secondary">Cancelar</button>
+        <button type="button" onclick="descargarPDFactual()" class="btn-secondary flex items-center gap-2"><i class="fas fa-file-pdf text-red-400"></i> PDF</button>
+        <button type="submit" class="btn-primary flex items-center gap-2"><i class="fas fa-save"></i> Guardar Contrato</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="afp_resultado" class="hidden glass-card p-4 border-l-4 border-blue-500">
+    <div class="flex items-start gap-3">
+      <i class="fas fa-id-card text-blue-400 mt-1"></i>
+      <div class="flex-1">
+        <h4 class="text-sm font-semibold text-blue-300">Datos Previsionales</h4>
+        <div id="afp_datos" class="text-xs text-slate-300 mt-1 space-y-0.5"></div>
+      </div>
+      <button onclick="document.getElementById('afp_resultado').classList.add('hidden')" class="text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
+  <div id="modal_camara" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+    <div class="bg-dark-900 rounded-xl p-4 max-w-md w-full">
+      <h3 class="text-white text-sm font-semibold mb-3"><i class="fas fa-camera text-emerald-400 mr-2"></i>Escanear Cédula de Identidad</h3>
+      <div class="ocr-overlay">
+        <video id="video_camara" class="camera-preview w-full" autoplay playsinline></video>
+      </div>
+      <div class="flex gap-2 mt-3">
+        <button onclick="capturarCedula()" class="btn-primary flex-1"><i class="fas fa-camera"></i> Capturar</button>
+        <button onclick="cerrarCamara()" class="btn-secondary">Cerrar</button>
+      </div>
+      <p class="text-xs text-slate-500 mt-2">Coloca la cédula frente a la cámara y presiona Capturar.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/app/contratos.js"></script>
+{% endblock %}

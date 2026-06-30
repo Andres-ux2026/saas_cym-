@@ -1,0 +1,119 @@
+{% extends "app/base.html" %}
+{% load static %}
+{% block title %}CYM — Gestión de Empresas{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-white">Empresas</h1>
+            <p class="text-sm text-slate-400">Gestión de contratistas y relaciones con mandantes</p>
+        </div>
+        <button id="btn-nueva" class="btn-primary"><i class="fas fa-plus"></i> Nueva empresa</button>
+    </div>
+
+    <div class="glass-card p-5 space-y-4">
+        <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Buscar por RUT</h2>
+        <div class="flex gap-3">
+            <input type="text" id="rut-busqueda" class="input-field flex-1" placeholder="Ej: 12.345.678-9" maxlength="12" />
+            <button id="btn-buscar" class="btn-primary"><i class="fas fa-search"></i> Buscar</button>
+        </div>
+    </div>
+
+    <div id="form-empresa" class="hidden glass-card p-5 space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 id="form-titulo" class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Nueva empresa</h2>
+            <div id="acciones-empresa" class="flex gap-2">
+                <button id="btn-modificar" class="btn-secondary hidden"><i class="fas fa-pen"></i> Modificar</button>
+                <button id="btn-eliminar" class="btn-danger hidden"><i class="fas fa-trash"></i> Eliminar</button>
+            </div>
+        </div>
+        <input type="hidden" id="empresa-id" value="" />
+        <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+                <label class="result-label block mb-1">RUT Empresa</label>
+                <input type="text" id="e-rut" class="input-field" placeholder="12.345.678-9" maxlength="12" />
+            </div>
+            <div>
+                <label class="result-label block mb-1">Razón Social</label>
+                <input type="text" id="e-razon-social" class="input-field" placeholder="Nombre de la empresa" />
+            </div>
+            <div>
+                <label class="result-label block mb-1">Representante Legal</label>
+                <input type="text" id="e-nombre-representante" class="input-field" placeholder="Nombre completo" />
+            </div>
+            <div>
+                <label class="result-label block mb-1">RUT Representante</label>
+                <input type="text" id="e-rut-representante" class="input-field" placeholder="12.345.678-9" maxlength="12" />
+            </div>
+            <div>
+                <label class="result-label block mb-1">Actividad Económica</label>
+                <input type="text" id="e-actividad" class="input-field" placeholder="Ej: Construcción" />
+            </div>
+            <div>
+                <label class="result-label block mb-1">Dirección</label>
+                <input type="text" id="e-direccion" class="input-field" placeholder="Dirección completa" />
+            </div>
+            <div>
+                <label class="result-label block mb-1">Teléfono</label>
+                <input type="text" id="e-telefono" class="input-field" placeholder="+56 9 1234 5678" />
+            </div>
+            <div>
+                <label class="result-label block mb-1">Email</label>
+                <input type="email" id="e-email" class="input-field" placeholder="contacto@empresa.cl" />
+            </div>
+        </div>
+        <details class="text-sm">
+            <summary class="text-primary-400 cursor-pointer font-medium">Claves de acceso</summary>
+            <div class="grid sm:grid-cols-2 gap-4 mt-4">
+                <div><label class="result-label block mb-1">Clave SII Empresa</label><input type="password" id="e-clave-sii-emp" class="input-field" /></div>
+                <div><label class="result-label block mb-1">Clave SII Persona</label><input type="password" id="e-clave-sii-per" class="input-field" /></div>
+                <div><label class="result-label block mb-1">Clave PreviRed</label><input type="password" id="e-clave-previred" class="input-field" /></div>
+                <div><label class="result-label block mb-1">Clave Mutual</label><input type="password" id="e-clave-mutual" class="input-field" /></div>
+                <div><label class="result-label block mb-1">Clave AFC</label><input type="password" id="e-clave-afc" class="input-field" /></div>
+                <div><label class="result-label block mb-1">Clave Portuaria</label><input type="password" id="e-clave-portuaria" class="input-field" /></div>
+                <div><label class="result-label block mb-1">ClaveÚnica</label><input type="password" id="e-clave-unica" class="input-field" /></div>
+            </div>
+        </details>
+        <div class="flex gap-3 pt-2">
+            <button id="btn-guardar" class="btn-primary"><i class="fas fa-save"></i> Guardar</button>
+            <button id="btn-cancelar" class="btn-secondary"><i class="fas fa-times"></i> Cancelar</button>
+        </div>
+    </div>
+
+    <div id="section-mandantes" class="hidden glass-card p-5 space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">
+                Mandantes <span class="text-slate-500">(Ley 20.123)</span>
+            </h2>
+            <button id="btn-nuevo-mandante" class="btn-secondary text-xs py-1.5 px-3"><i class="fas fa-plus"></i> Agregar</button>
+        </div>
+        <div id="form-mandante" class="hidden grid sm:grid-cols-3 gap-3">
+            <input type="text" id="m-rut" class="input-field" placeholder="RUT mandante" maxlength="12" />
+            <input type="text" id="m-razon-social" class="input-field" placeholder="Razón social mandante" />
+            <div class="flex gap-2">
+                <button id="btn-guardar-mandante" class="btn-primary text-xs py-1.5 px-3"><i class="fas fa-save"></i> Guardar</button>
+                <button id="btn-cancelar-mandante" class="btn-secondary text-xs py-1.5 px-3">Cancelar</button>
+            </div>
+        </div>
+        <div id="tabla-mandantes" class="text-sm text-slate-500">Sin mandantes registrados.</div>
+    </div>
+
+    <div class="glass-card p-5">
+        <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Todas las empresas</h2>
+        <div id="tabla-empresas" class="space-y-2">
+            <p class="text-sm text-slate-500 text-center py-8">Carga empresas para gestionar contratos y sueldos.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.result-label { font-size: 0.7rem; color: rgba(148,163,184,0.7); text-transform: uppercase; letter-spacing: 0.05em; }
+.toast { position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-size: 0.875rem; z-index: 100; animation: slide-up 0.3s ease; }
+.toast-success { background: #059669; color: white; }
+.toast-error { background: #dc2626; color: white; }
+@keyframes slide-up { from { transform: translateY(1rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+</style>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{% static 'js/app/empresas.js' %}"></script>
+{% endblock %}

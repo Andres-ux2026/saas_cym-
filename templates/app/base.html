@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>{% block title %}CYM — App{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#f3e8ff', 100: '#e9d5ff', 200: '#d4b4ff', 300: '#b77ff5', 400: '#9a5de0', 500: '#7c3aed', 600: '#6d28d9', 700: '#5b21b6', 800: '#4c1d95', 900: '#3b0764' },
+                        accent: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+                        dark: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a', 950: '#020617' },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+        .glass-card { background: rgba(255,255,255,0.06); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; }
+        .input-field { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 0.5rem; padding: 0.625rem 0.875rem; color: #e2e8f0; width: 100%; transition: all 0.2s; }
+        .input-field:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.2); outline: none; }
+        .input-field::placeholder { color: rgba(148,163,184,0.5); }
+        .btn-primary { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; padding: 0.5rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; font-size: 0.875rem; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(124,58,237,0.4); }
+        .btn-secondary { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #e2e8f0; padding: 0.5rem 1.25rem; border-radius: 0.5rem; font-weight: 500; transition: all 0.2s; font-size: 0.875rem; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.14); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 0.5rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; font-size: 0.875rem; }
+        .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(239,68,68,0.4); }
+        select.input-field { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E"); background-position: right 0.75rem center; background-size: 1rem; padding-right: 2.5rem; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.3/html2pdf.bundle.min.js"></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-dark-950 text-slate-200 min-h-screen flex">
+    <aside class="fixed left-0 top-0 bottom-0 w-64 glass border-r border-dark-700/50 z-30 hidden lg:flex flex-col">
+        <div class="p-5 border-b border-dark-700/50">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-file-signature text-white text-xs"></i>
+                </div>
+                <div>
+                    <span class="text-base font-bold text-white">CYM</span>
+                    <span class="text-[9px] text-slate-500 block leading-tight">Cumplimiento Laboral</span>
+                </div>
+            </a>
+        </div>
+        <nav class="flex-1 p-3 space-y-1">
+            <a href="/app/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+                <i class="fas fa-th-large w-5 text-center text-primary-400"></i> Dashboard
+            </a>
+            <hr class="border-dark-700/50 my-1" />
+            <a href="/app/empresas/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+                <i class="fas fa-building w-5 text-center text-primary-400"></i> Empresas
+            </a>
+            <a href="/app/contratos/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+                <i class="fas fa-file-contract w-5 text-center text-emerald-400"></i> Contratos
+            </a>
+            <a href="/app/horas-extra/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+                <i class="fas fa-clock w-5 text-center text-amber-400"></i> Horas Extra
+            </a>
+            <a href="/app/liquidaciones/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+                <i class="fas fa-file-invoice-dollar w-5 text-center text-green-400"></i> Liquidaciones
+            </a>
+            <a href="/app/finiquitos/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+                <i class="fas fa-file-signature w-5 text-center text-amber-400"></i> Finiquitos
+            </a>
+            <a href="/app/vacaciones/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+                <i class="fas fa-umbrella-beach w-5 text-center text-sky-400"></i> Vacaciones
+            </a>
+            <a href="/app/alertas/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+                <i class="fas fa-bell w-5 text-center text-rose-400"></i> Alertas
+            </a>
+            <a href="/calculadora/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+                <i class="fas fa-calculator w-5 text-center text-accent-400"></i> Calculadora
+            </a>
+            <hr class="border-dark-700/50 my-3" />
+            <a href="/logout/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-500 hover:bg-white/5 hover:text-slate-300 transition-all">
+                <i class="fas fa-sign-out-alt w-5 text-center"></i> Salir
+            </a>
+        </nav>
+    </aside>
+
+    <div class="lg:ml-64 flex-1 min-h-screen flex flex-col">
+        <header class="glass border-b border-dark-700/50 lg:hidden">
+            <div class="flex items-center justify-between h-14 px-4">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-7 h-7 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-signature text-white text-[10px]"></i>
+                    </div>
+                    <span class="text-sm font-bold text-white">CYM</span>
+                </a>
+                <div class="flex gap-2">
+                    <a href="/app/" class="text-xs text-slate-400 px-2 py-1 rounded hover:text-white"><i class="fas fa-th-large"></i></a>
+                    <a href="/app/empresas/" class="text-xs text-slate-400 px-2 py-1 rounded hover:text-white"><i class="fas fa-building"></i></a>
+                    <a href="/app/contratos/" class="text-xs text-slate-400 px-2 py-1 rounded hover:text-white"><i class="fas fa-file-contract"></i></a>
+                    <a href="/app/horas-extra/" class="text-xs text-slate-400 px-2 py-1 rounded hover:text-white"><i class="fas fa-clock"></i></a>
+                    <a href="/app/liquidaciones/" class="text-xs text-slate-400 px-2 py-1 rounded hover:text-white"><i class="fas fa-file-invoice-dollar"></i></a>
+                    <a href="/app/finiquitos/" class="text-xs text-slate-400 px-2 py-1 rounded hover:text-white"><i class="fas fa-file-signature"></i></a>
+                    <a href="/app/vacaciones/" class="text-xs text-slate-400 px-2 py-1 rounded hover:text-white"><i class="fas fa-umbrella-beach"></i></a>
+                    <a href="/app/alertas/" class="text-xs text-slate-400 px-2 py-1 rounded hover:text-white"><i class="fas fa-bell"></i></a>
+                    <a href="/logout/" class="text-xs text-slate-500 px-2 py-1 rounded hover:text-slate-300"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            </div>
+        </header>
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="/static/js/app/pdf_generator.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

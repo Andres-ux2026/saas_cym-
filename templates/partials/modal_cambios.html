@@ -1,0 +1,15 @@
+<div id="modal-cambios" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden" role="dialog">
+    <div class="bg-dark-800 border border-dark-600 rounded-2xl p-6 max-w-lg w-full mx-4 shadow-2xl">
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fas fa-bell text-yellow-400"></i>Cambios en parámetros</h3>
+            <button onclick="cerrarModalCambios()" class="text-slate-500 hover:text-white transition-colors">&times;</button>
+        </div>
+        <div id="cambios-lista" class="space-y-2 max-h-64 overflow-y-auto">
+            <p class="text-sm text-slate-500 text-center py-4">No hay cambios pendientes.</p>
+        </div>
+        <div class="flex gap-3 mt-5">
+            <button id="btn-revisar-todos" class="btn-accent flex-1"><i class="fas fa-check mr-1"></i>Revisar todos</button>
+            <button onclick="cerrarModalCambios()" class="btn-secondary flex-1">Cerrar</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,24 @@
+<header class="glass border-b border-dark-700/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-calculator text-white text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white leading-tight">CYM</h1>
+                    <p class="text-[10px] text-slate-400 leading-tight -mt-0.5">Calculadora de Sueldos</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="btn-voice-config" class="voice-btn inactive" title="Configurar asistente de voz">
+                    <i class="fas fa-microphone text-sm text-slate-300"></i>
+                </button>
+                <button id="btn-cambios-pendientes" class="relative p-2 text-slate-400 hover:text-white transition-colors" title="Cambios en parámetros">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span id="cambios-badge" class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center hidden">0</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>

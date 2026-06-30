@@ -1,0 +1,124 @@
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="glass-card p-5 space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Datos del trabajador</h2>
+            <div class="flex gap-1 bg-dark-800 rounded-lg p-0.5">
+                <button data-modo="bruto_a_liquido" class="modo-btn tab-active text-xs px-3 py-1.5 rounded-md font-medium transition-all">Bruto &rarr; Líquido</button>
+                <button data-modo="liquido_a_bruto" class="modo-btn text-xs px-3 py-1.5 rounded-md font-medium text-slate-400 hover:text-white transition-all">Líquido &rarr; Bruto</button>
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="result-label block mb-1">Sueldo base <span class="text-slate-500">($)</span></label>
+                    <div class="flex items-center gap-1">
+                        <input type="number" id="sueldo_base" class="input-field" placeholder="0" data-comando="sueldo base" />
+                        <button data-campo="sueldo_base" class="voice-btn inactive mic-field" title="Decir valor"><i class="fas fa-microphone text-xs"></i></button>
+                    </div>
+                </div>
+                <div>
+                    <label class="result-label block mb-1">Otros bonos <span class="text-slate-500">($)</span></label>
+                    <div class="flex items-center gap-1">
+                        <input type="number" id="otros_bonos" class="input-field" placeholder="0" />
+                        <button data-campo="otros_bonos" class="voice-btn inactive mic-field" title="Decir valor"><i class="fas fa-microphone text-xs"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="result-label block mb-1">Colación <span class="text-slate-500">($)</span></label>
+                    <input type="number" id="colacion" class="input-field" placeholder="0" />
+                </div>
+                <div>
+                    <label class="result-label block mb-1">Movilización <span class="text-slate-500">($)</span></label>
+                    <input type="number" id="movilizacion" class="input-field" placeholder="0" />
+                </div>
+            </div>
+
+            <div>
+                <label class="result-label block mb-1">Otros no imponibles <span class="text-slate-500">($)</span></label>
+                <input type="number" id="otros_no_imponibles" class="input-field" placeholder="0" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="result-label block mb-1">Tipo de contrato</label>
+                    <select id="tipo_contrato" class="input-field">
+                        <option value="indefinido">Indefinido</option>
+                        <option value="plazo_fijo">Plazo fijo</option>
+                        <option value="indefinido_11anos">Indefinido +11 años</option>
+                        <option value="casa_particular">Casa particular</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="result-label block mb-1">Gratificación</label>
+                    <select id="tipo_gratificacion" class="input-field">
+                        <option value="mensual">Mensual (25%)</option>
+                        <option value="sin">Sin gratificación</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="result-label block mb-1">AFP</label>
+                    <select id="afp" class="input-field"></select>
+                </div>
+                <div>
+                    <label class="result-label block mb-1">Salud</label>
+                    <select id="salud_tipo" class="input-field">
+                        <option value="fonasa">FONASA (7%)</option>
+                        <option value="isapre">Isapre</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="isapre-field" class="hidden">
+                <label class="result-label block mb-1">Plan Isapre <span class="text-slate-500">(UF)</span></label>
+                <div class="flex items-center gap-1">
+                    <input type="number" id="plan_isapre_uf" class="input-field" placeholder="0.0" step="0.01" />
+                    <button data-campo="plan_isapre_uf" class="voice-btn inactive mic-field" title="Decir valor"><i class="fas fa-microphone text-xs"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+            <button id="btn-calcular" class="btn-primary flex-1"><i class="fas fa-calculator mr-2"></i>Calcular</button>
+            <button id="btn-limpiar" class="btn-secondary"><i class="fas fa-eraser mr-1"></i>Limpiar</button>
+        </div>
+    </div>
+
+    <div class="glass-card p-5 space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Resultados</h2>
+            <div class="flex gap-2">
+                <button id="btn-leer-resultados" class="voice-btn inactive" title="Leer resultados"><i class="fas fa-volume-up text-xs"></i></button>
+                <button id="btn-enviar-whatsapp" class="text-green-400 hover:text-green-300 text-xs font-medium transition-colors hidden"><i class="fab fa-whatsapp mr-1"></i>WhatsApp</button>
+            </div>
+        </div>
+        <div id="resultados-placeholder" class="flex flex-col items-center justify-center py-10 text-slate-500">
+            <i class="fas fa-chart-bar text-4xl mb-3 opacity-40"></i>
+            <p class="text-sm">Completa los datos y presiona <span class="text-primary-400">Calcular</span></p>
+        </div>
+        <div id="resultados-content" class="hidden space-y-4">
+            <table class="w-full result-table text-sm">
+                <thead>
+                    <tr><th>Concepto</th><th class="text-right">Monto</th></tr>
+                </thead>
+                <tbody id="resultados-body"></tbody>
+            </table>
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <div class="text-center p-3 rounded-lg bg-dark-800/50">
+                    <div class="result-label">Sueldo Líquido</div>
+                    <div id="result-liquido" class="text-xl font-bold text-primary-400">$0</div>
+                </div>
+                <div class="text-center p-3 rounded-lg bg-dark-800/50">
+                    <div class="result-label">Costo Total Empleador</div>
+                    <div id="result-costo-total" class="text-xl font-bold text-accent-400">$0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

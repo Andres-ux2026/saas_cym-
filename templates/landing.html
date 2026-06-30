@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>CYM - Cumplimiento Laboral Simplificado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="/static/pwa/manifest.json" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#f3e8ff', 100: '#e9d5ff', 200: '#d4b4ff', 300: '#b77ff5', 400: '#9a5de0', 500: '#7c3aed', 600: '#6d28d9', 700: '#5b21b6', 800: '#4c1d95', 900: '#3b0764' },
+                        accent: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+                        dark: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a', 950: '#020617' },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .glass-card { background: rgba(255,255,255,0.06); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem; transition: all 0.3s; }
+        .glass-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); border-color: rgba(124,58,237,0.3); }
+        .btn-primary { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; padding: 0.75rem 2rem; border-radius: 0.75rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,58,237,0.4); }
+        .btn-outline { border: 1px solid rgba(255,255,255,0.2); color: #e2e8f0; padding: 0.75rem 2rem; border-radius: 0.75rem; font-weight: 500; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn-outline:hover { background: rgba(255,255,255,0.08); border-color: rgba(124,58,237,0.5); }
+        .gradient-text { background: linear-gradient(135deg, #a78bfa, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-glow { position: absolute; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); opacity: 0.15; pointer-events: none; }
+        .feature-icon { width: 3rem; height: 3rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+        .modal-overlay { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .input-field { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 0.5rem; padding: 0.75rem 1rem; color: #e2e8f0; width: 100%; transition: all 0.2s; }
+        .input-field:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.2); outline: none; }
+        .input-field::placeholder { color: rgba(148,163,184,0.5); }
+    </style>
+</head>
+<body class="bg-dark-950 text-slate-200 antialiased overflow-x-hidden">
+    <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
+        <div class="bg-dark-800 border border-dark-600 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-white">Iniciar sesión</h2>
+                <button onclick="toggleModal(false)" class="text-slate-500 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+            <form method="post" action="{% url 'login' %}" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="text-xs text-slate-400 uppercase tracking-wider block mb-1.5">Usuario</label>
+                    <input type="text" name="username" class="input-field" placeholder="nombre@ejemplo.cl" required autocomplete="username" />
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 uppercase tracking-wider block mb-1.5">Contraseña</label>
+                    <input type="password" name="password" class="input-field" placeholder="••••••••" required autocomplete="current-password" />
+                </div>
+                {% if form.errors %}
+                <p class="text-xs text-red-400">Usuario o contraseña incorrectos.</p>
+                {% endif %}
+                <button type="submit" class="btn-primary w-full justify-center mt-2"><i class="fas fa-arrow-right-to-bracket"></i> Ingresar</button>
+            </form>
+            <p class="text-xs text-slate-600 text-center mt-4">Acceso exclusivo para administradores</p>
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="fixed top-4 right-4 z-40 flex gap-2">
+        <a href="/calculadora/" class="btn-primary text-sm py-2 px-4"><i class="fas fa-calculator"></i> Calculadora</a>
+        <a href="/logout/" class="btn-outline text-sm py-2 px-4"><i class="fas fa-sign-out-alt"></i> Salir</a>
+    </div>
+    {% endif %}
+
+    <nav class="fixed top-0 left-0 right-0 z-30 glass border-b border-dark-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-file-signature text-white text-sm"></i>
+                </div>
+                <div>
+                    <span class="text-lg font-bold text-white">CYM</span>
+                    <span class="text-[10px] text-slate-500 block leading-tight -mt-0.5">Cumplimiento Laboral</span>
+                </div>
+            </a>
+            <div class="flex items-center gap-6">
+                <a href="#funcionalidades" class="text-sm text-slate-400 hover:text-white transition-colors hidden sm:block">Funcionalidades</a>
+                <a href="#como-funciona" class="text-sm text-slate-400 hover:text-white transition-colors hidden sm:block">Cómo funciona</a>
+                <a href="/calculadora/" class="text-sm text-slate-400 hover:text-white transition-colors hidden sm:block">Calculadora</a>
+                {% if not user.is_authenticated %}
+                <button onclick="toggleModal(true)" class="btn-primary text-sm py-2 px-5"><i class="fas fa-lock"></i> Acceder</button>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="relative min-h-screen flex items-center pt-20 pb-16 overflow-hidden">
+            <div class="hero-glow bg-primary-500 -top-40 -left-40"></div>
+            <div class="hero-glow bg-accent-500 -bottom-40 -right-40"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                <div class="max-w-3xl mx-auto text-center">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-500/10 border border-primary-500/20 text-xs text-primary-300 mb-8">
+                        <i class="fas fa-check-circle"></i> Cumplimiento Ley Nº 20.123
+                    </div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
+                        Gestión laboral<br/>
+                        <span class="gradient-text">100% digital</span> para contratistas
+                    </h1>
+                    <p class="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                        Automatiza contratos, anexos, pactos de horas extra y cálculo de sueldos. 
+                        Diseñado para empresas contratistas y sus relaciones con mandantes.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        {% if not user.is_authenticated %}
+                        <button onclick="toggleModal(true)" class="btn-primary text-lg"><i class="fas fa-rocket"></i> Comenzar</button>
+                        {% else %}
+                        <a href="/calculadora/" class="btn-primary text-lg"><i class="fas fa-calculator"></i> Calculadora de Sueldos</a>
+                        {% endif %}
+                        <a href="#funcionalidades" class="btn-outline text-lg"><i class="fas fa-chevron-down"></i> Conocer más</a>
+                    </div>
+                </div>
+                <div class="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
+                    <div class="text-center p-4 rounded-xl bg-dark-800/50">
+                        <div class="text-2xl font-bold text-primary-400">8+</div>
+                        <div class="text-xs text-slate-500 mt-1">Módulos integrados</div>
+                    </div>
+                    <div class="text-center p-4 rounded-xl bg-dark-800/50">
+                        <div class="text-2xl font-bold text-accent-400">100%</div>
+                        <div class="text-xs text-slate-500 mt-1">Mobile-first</div>
+                    </div>
+                    <div class="text-center p-4 rounded-xl bg-dark-800/50">
+                        <div class="text-2xl font-bold text-green-400">Diario</div>
+                        <div class="text-xs text-slate-500 mt-1">Scraping PreviRed</div>
+                    </div>
+                    <div class="text-center p-4 rounded-xl bg-dark-800/50">
+                        <div class="text-2xl font-bold text-sky-400">PWA</div>
+                        <div class="text-xs text-slate-500 mt-1">Sin App Store</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="funcionalidades" class="py-20 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-14">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Todo lo que necesitas<br/>para gestionar tu personal</h2>
+                    <p class="text-slate-400 max-w-xl mx-auto">Desde la contratación hasta la liquidación de sueldo, un solo lugar.</p>
+                </div>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <div class="glass-card p-6">
+                        <div class="feature-icon bg-primary-500/20 text-primary-400 mb-4"><i class="fas fa-building"></i></div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Gestión de Empresas</h3>
+                        <p class="text-sm text-slate-400">Registro de contratistas y mandantes con búsqueda por RUT, autocompletado automático y contexto Ley 20.123.</p>
+                    </div>
+                    <div class="glass-card p-6">
+                        <div class="feature-icon bg-accent-500/20 text-accent-400 mb-4"><i class="fas fa-file-contract"></i></div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Contratos Automáticos</h3>
+                        <p class="text-sm text-slate-400">Plantillas por cargo, OCR de cédula chilena, captura de firma y transcripción de audios vía IA.</p>
+                    </div>
+                    <div class="glass-card p-6">
+                        <div class="feature-icon bg-green-500/20 text-green-400 mb-4"><i class="fas fa-pen-to-square"></i></div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Anexos de Contrato</h3>
+                        <p class="text-sm text-slate-400">Modificaciones por mutuo acuerdo con autocompletado inteligente y generación automática de PDF.</p>
+                    </div>
+                    <div class="glass-card p-6">
+                        <div class="feature-icon bg-sky-500/20 text-sky-400 mb-4"><i class="fas fa-clock"></i></div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Horas Extraordinarias</h3>
+                        <p class="text-sm text-slate-400">Pactos automáticos al crear contratos, con renovación cada 3 meses y alertas 7 días antes del vencimiento.</p>
+                    </div>
+                    <div class="glass-card p-6 border-primary-500/30">
+                        <div class="feature-icon bg-primary-500/20 text-primary-400 mb-4"><i class="fas fa-calculator"></i></div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Cálculo de Sueldos</h3>
+                        <p class="text-sm text-slate-400">Bruto a líquido y viceversa, con datos actualizados diariamente desde PreviRed y SII. Costo empleador incluido.</p>
+                    </div>
+                    <div class="glass-card p-6">
+                        <div class="feature-icon bg-red-500/20 text-red-400 mb-4"><i class="fas fa-bell"></i></div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Alertas Inteligentes</h3>
+                        <p class="text-sm text-slate-400">Notificaciones por WhatsApp y email para vencimientos de contratos, renovación de pactos y alertas personalizadas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="como-funciona" class="py-20 bg-dark-900/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-14">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Cómo funciona</h2>
+                    <p class="text-slate-400 max-w-xl mx-auto">Tres pasos para transformar tu gestión laboral.</p>
+                </div>
+                <div class="grid sm:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center text-2xl font-bold text-white mb-5">1</div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Registra tu empresa</h3>
+                        <p class="text-sm text-slate-400">Ingresa el RUT y el sistema carga automáticamente los datos. Asocia tus empresas mandantes en segundos.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto bg-gradient-to-br from-accent-500 to-accent-700 rounded-2xl flex items-center justify-center text-2xl font-bold text-white mb-5">2</div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Crea contratos al instante</h3>
+                        <p class="text-sm text-slate-400">Captura la cédula con la cámara o transcribe audios de WhatsApp. Todo se autocompleta con IA.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto bg-gradient-to-br from-green-500 to-green-700 rounded-2xl flex items-center justify-center text-2xl font-bold text-white mb-5">3</div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Automatiza y olvídate</h3>
+                        <p class="text-sm text-slate-400">Pactos de horas extra, cálculo de sueldos y alertas de vencimiento funcionan solos. Tú solo gestionas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20 relative">
+            <div class="hero-glow bg-primary-500 -top-40 left-1/2 -translate-x-1/2"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div class="glass-card p-10 max-w-2xl mx-auto border-primary-500/20">
+                    <i class="fas fa-calculator text-4xl text-primary-400 mb-5"></i>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mb-4">Prueba la calculadora de sueldos</h2>
+                    <p class="text-slate-400 mb-8">Calcula sueldo bruto a líquido con datos actualizados desde PreviRed y SII. Sin registro.</p>
+                    <a href="/calculadora/" class="btn-primary text-lg"><i class="fas fa-arrow-right"></i> Ir a la calculadora</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-dark-800 py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-signature text-white text-xs"></i>
+                    </div>
+                    <span class="text-sm font-semibold text-white">CYM</span>
+                    <span class="text-xs text-slate-600">© {% now "Y" %} — Todos los derechos reservados</span>
+                </div>
+                <div class="flex items-center gap-6 text-xs text-slate-600">
+                    <a href="/calculadora/" class="hover:text-slate-400 transition-colors">Calculadora</a>
+                    <a href="#" class="hover:text-slate-400 transition-colors">Contacto</a>
+                    <a href="#" class="hover:text-slate-400 transition-colors">Privacidad</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleModal(show) {
+            const modal = document.getElementById('login-modal');
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+        document.getElementById('login-modal')?.addEventListener('click', function(e) {
+            if (e.target === this) toggleModal(false);
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') toggleModal(false);
+        });
+
+    </script>
+</body>
+</html>

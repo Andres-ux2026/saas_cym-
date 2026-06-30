@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: saas-cym
+    runtime: docker
+    plan: starter
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ".onrender.com,localhost"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://*.onrender.com"
+      - key: DB_ENGINE
+        value: django.db.backends.postgresql
+      - key: DB_NAME
+        fromDatabase:
+          name: saas-cym-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: saas-cym-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: saas-cym-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: saas-cym-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: saas-cym-db
+          property: port
+
+database:
+  - name: saas-cym-db
+    plan: starter
+    databaseName: saas_cym
+    user: saas_cym

@@ -1,0 +1,76 @@
+{% extends "app/base.html" %}
+{% block title %}CYM — Alertas{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-white"><i class="fas fa-bell text-rose-400 mr-3"></i>Alertas</h1>
+      <p class="text-sm text-slate-400 mt-1">Motor de alertas para vencimientos de contratos, pactos HE y cambios en parámetros</p>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="marcarTodasLeidas()" class="btn-secondary text-xs flex items-center gap-1"><i class="fas fa-check-double"></i> Marcar todas leídas</button>
+      <button onclick="procesarAlertas()" class="btn-primary text-xs flex items-center gap-1"><i class="fas fa-sync"></i> Verificar ahora</button>
+    </div>
+  </div>
+
+  <div id="mensaje" class="hidden px-4 py-3 rounded-lg text-sm"></div>
+  <div id="badge_no_leidas" class="hidden"></div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-3" id="lista_alertas"></div>
+    <div class="space-y-4">
+      <div class="glass-card p-4">
+        <h3 class="text-sm font-semibold text-white mb-4"><i class="fas fa-cog text-slate-400 mr-2"></i>Configuración</h3>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Empresa</label>
+            <select id="cfg_empresa" class="input-field text-sm" onchange="cargarConfig()">
+              <option value="">Seleccionar...</option>
+              {% for e in empresas %}
+              <option value="{{ e.rut }}">{{ e.razon_social }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div id="cfg_form" class="hidden space-y-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Email notificación</label>
+              <input type="email" id="cfg_email" class="input-field text-sm" placeholder="correo@ejemplo.cl">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">WhatsApp (opcional)</label>
+              <input type="text" id="cfg_whatsapp" class="input-field text-sm" placeholder="+56 9 XXXX XXXX">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Días anticipación</label>
+              <input type="number" id="cfg_dias" class="input-field text-sm" value="7" min="1" max="30">
+            </div>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-xs text-slate-300">
+                <input type="checkbox" id="cfg_alertar_contratos" checked class="rounded accent-primary-500">
+                Alertar contratos
+              </label>
+              <label class="flex items-center gap-2 text-xs text-slate-300">
+                <input type="checkbox" id="cfg_alertar_pactos" checked class="rounded accent-primary-500">
+                Alertar pactos HE
+              </label>
+              <label class="flex items-center gap-2 text-xs text-slate-300">
+                <input type="checkbox" id="cfg_alertar_parametros" checked class="rounded accent-primary-500">
+                Alertar parámetros
+              </label>
+              <label class="flex items-center gap-2 text-xs text-slate-300">
+                <input type="checkbox" id="cfg_whatsapp_activo" class="rounded accent-primary-500">
+                WhatsApp activo
+              </label>
+            </div>
+            <button onclick="guardarConfig()" class="btn-primary w-full text-xs"><i class="fas fa-save"></i> Guardar configuración</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/app/alertas.js"></script>
+{% endblock %}

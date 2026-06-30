@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>CYM - Calculadora de Sueldos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="/static/pwa/manifest.json" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#f3e8ff', 100: '#e9d5ff', 200: '#d4b4ff', 300: '#b77ff5', 400: '#9a5de0', 500: '#7c3aed', 600: '#6d28d9', 700: '#5b21b6', 800: '#4c1d95', 900: '#3b0764' },
+                        accent: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+                        dark: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a', 950: '#020617' },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .glass-card { background: rgba(255,255,255,0.08); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.12); border-radius: 1rem; }
+        .input-field { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 0.5rem; padding: 0.625rem 0.875rem; color: #e2e8f0; width: 100%; transition: all 0.2s; }
+        .input-field:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.2); outline: none; }
+        .input-field::placeholder { color: rgba(148,163,184,0.6); }
+        .btn-primary { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; padding: 0.625rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(124,58,237,0.4); }
+        .btn-secondary { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #e2e8f0; padding: 0.625rem 1.5rem; border-radius: 0.5rem; font-weight: 500; transition: all 0.2s; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.14); }
+        .btn-accent { background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; font-size: 0.875rem; }
+        .btn-accent:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(249,115,22,0.4); }
+        .result-value { font-size: 1.5rem; font-weight: 700; color: #a78bfa; }
+        .result-label { font-size: 0.75rem; color: rgba(148,163,184,0.8); text-transform: uppercase; letter-spacing: 0.05em; }
+        .highlight-row { background: linear-gradient(90deg, rgba(124,58,237,0.15), transparent); }
+        .voice-btn { width: 2.25rem; height: 2.25rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; cursor: pointer; flex-shrink: 0; }
+        .voice-btn.active { background: #ef4444; animation: pulse-mic 1.5s infinite; }
+        .voice-btn.inactive { background: rgba(255,255,255,0.1); }
+        .voice-btn:hover { background: rgba(255,255,255,0.2); }
+        @keyframes pulse-mic { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); } 50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } }
+        .banner-cambio { background: linear-gradient(135deg, rgba(234,179,8,0.15), rgba(234,179,8,0.05)); border: 1px solid rgba(234,179,8,0.3); border-radius: 0.75rem; padding: 1rem; }
+        .banner-voz { background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(236,72,153,0.1)); border: 1px solid rgba(124,58,237,0.2); border-radius: 0.75rem; padding: 1rem; }
+        .tab-active { background: #7c3aed; color: white; }
+        .result-table th { padding: 0.5rem 0.75rem; text-align: left; font-size: 0.75rem; color: rgba(148,163,184,0.7); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .result-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        select.input-field { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E"); background-position: right 0.75rem center; background-size: 1rem; padding-right: 2.5rem; }
+    </style>
+</head>
+<body class="bg-dark-950 text-slate-200 min-h-screen">
+    <div class="min-h-screen flex flex-col">
+        {% include "partials/header.html" %}
+        <main class="flex-1">
+            <div id="app" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+                {% include "partials/banners.html" %}
+                {% include "partials/calculadora.html" %}
+            </div>
+        </main>
+        {% include "partials/footer.html" %}
+    </div>
+    {% include "partials/modal_voz_config.html" %}
+    {% include "partials/modal_cambios.html" %}
+    <script src="/static/js/calculo_sueldo.js"></script>
+    <script src="/static/js/asistente_voz.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

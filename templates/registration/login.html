@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>Iniciar sesión — CYM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .input-field { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 0.5rem; padding: 0.75rem 1rem; color: #e2e8f0; width: 100%; transition: all 0.2s; }
+        .input-field:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.2); outline: none; }
+        .btn-primary { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; width: 100%; justify-content: center; display: flex; align-items: center; gap: 0.5rem; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(124,58,237,0.4); }
+    </style>
+</head>
+<body class="bg-dark-950 text-slate-200 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-dark-800 border border-dark-600 rounded-2xl p-8 max-w-sm w-full shadow-2xl">
+        <a href="/" class="flex items-center gap-3 mb-8">
+            <div class="w-9 h-9 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-file-signature text-white text-sm"></i>
+            </div>
+            <span class="text-lg font-bold text-white">CYM</span>
+        </a>
+        <h2 class="text-xl font-bold text-white mb-6">Iniciar sesión</h2>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="text-xs text-slate-400 uppercase tracking-wider block mb-1.5">Usuario</label>
+                <input type="text" name="username" class="input-field" placeholder="nombre@ejemplo.cl" required autocomplete="username" />
+            </div>
+            <div>
+                <label class="text-xs text-slate-400 uppercase tracking-wider block mb-1.5">Contraseña</label>
+                <input type="password" name="password" class="input-field" placeholder="••••••••" required autocomplete="current-password" />
+            </div>
+            {% if form.errors %}
+            <p class="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3">Usuario o contraseña incorrectos.</p>
+            {% endif %}
+            <button type="submit" class="btn-primary"><i class="fas fa-arrow-right-to-bracket"></i> Ingresar</button>
+        </form>
+        <p class="text-xs text-slate-600 text-center mt-6">
+            <a href="/" class="text-primary-400 hover:text-primary-300">&larr; Volver al inicio</a>
+        </p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{% extends "app/base.html" %}
+{% block title %}CYM — Horas Extra{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-white"><i class="fas fa-clock text-amber-400 mr-3"></i>Pactos Horas Extra</h1>
+      <p class="text-sm text-slate-400 mt-1">Gestión de pactos de horas extraordinarias (vigencia 90 días, renovación automática)</p>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="renovarMasivo()" class="btn-secondary text-xs flex items-center gap-1"><i class="fas fa-sync"></i> Renovar Masivo</button>
+    </div>
+  </div>
+
+  <div id="alerta_panel" class="hidden"></div>
+  <div id="mensaje" class="hidden px-4 py-3 rounded-lg text-sm"></div>
+
+  <div class="flex gap-2 mb-4">
+    <select id="filtro_contrato" class="input-field max-w-xs text-sm" onchange="listarPactos()">
+      <option value="">Todos los contratos</option>
+      {% for c in contratos %}
+      <option value="{{ c.id }}">{{ c.nombres }} {{ c.apellidos }} — {{ c.empresa.razon_social }}</option>
+      {% endfor %}
+    </select>
+    <select id="filtro_estado" class="input-field max-w-[140px] text-sm" onchange="listarPactos()">
+      <option value="">Todos</option>
+      <option value="activos">Activos</option>
+      <option value="vencidos">Vencidos</option>
+    </select>
+  </div>
+
+  <div id="lista_pactos" class="space-y-3"></div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/app/horas_extra.js"></script>
+{% endblock %}

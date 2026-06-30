@@ -1,0 +1,94 @@
+{% extends "app/base.html" %}
+{% block title %}CYM — Vacaciones{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-white"><i class="fas fa-umbrella-beach text-sky-400 mr-3"></i>Vacaciones</h1>
+      <p class="text-sm text-slate-400 mt-1">Gestión de feriado legal y solicitudes de vacaciones</p>
+    </div>
+    <button onclick="mostrarFormInicio()" class="btn-primary flex items-center gap-2 text-xs"><i class="fas fa-plus"></i> Iniciar Año Vacacional</button>
+  </div>
+
+  <div id="mensaje" class="hidden px-4 py-3 rounded-lg text-sm"></div>
+
+  <div class="flex gap-2 mb-4">
+    <select id="filtro_contrato" class="input-field max-w-xs text-sm" onchange="listarVacaciones()">
+      <option value="">Todos los contratos</option>
+      {% for c in contratos %}
+      <option value="{{ c.id }}">{{ c.nombres }} {{ c.apellidos }} — {{ c.empresa.razon_social }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div id="lista_vacaciones" class="space-y-4"></div>
+
+  <div id="form_inicio" class="hidden glass-card p-6">
+    <h2 class="text-lg font-semibold text-white mb-5"><i class="fas fa-calendar-plus text-sky-400 mr-2"></i>Iniciar Año Vacacional</h2>
+    <form id="inicioForm" class="space-y-4" onsubmit="return iniciarAnio(event)">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Contrato</label>
+          <select id="vac_contrato" class="input-field" required>
+            <option value="">Seleccionar...</option>
+            {% for c in contratos %}
+            <option value="{{ c.id }}">{{ c.nombres }} {{ c.apellidos }} — {{ c.empresa.razon_social }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Año</label>
+          <input type="number" id="vac_anio" class="input-field" min="2020" max="2040" value="{{ 'now'|date:'Y' }}" required>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Días hábiles correspondientes</label>
+          <input type="number" id="vac_dias_corr" class="input-field" min="0" max="30" step="0.5" value="15">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Días pendientes año anterior</label>
+          <input type="number" id="vac_dias_ant" class="input-field" min="0" max="30" step="0.5" value="0">
+        </div>
+      </div>
+      <div class="flex justify-end gap-3">
+        <button type="button" onclick="cancelarFormInicio()" class="btn-secondary">Cancelar</button>
+        <button type="submit" class="btn-primary flex items-center gap-2"><i class="fas fa-save"></i> Iniciar</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="form_solicitud" class="hidden glass-card p-6">
+    <h2 class="text-lg font-semibold text-white mb-5"><i class="fas fa-paper-plane text-sky-400 mr-2"></i>Solicitar Vacaciones</h2>
+    <form id="solForm" class="space-y-4" onsubmit="return solicitarVacaciones(event)">
+      <input type="hidden" id="sol_vacacion_id">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Fecha Inicio</label>
+          <input type="date" id="sol_fecha_inicio" class="input-field" required onchange="calcDiasVac()">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Fecha Término</label>
+          <input type="date" id="sol_fecha_termino" class="input-field" required onchange="calcDiasVac()">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Días Solicitados</label>
+          <input type="number" id="sol_dias" class="input-field" min="0.5" max="30" step="0.5" required>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-400 mb-1">Comentario</label>
+        <textarea id="sol_comentario" class="input-field" rows="2" placeholder="Opcional..."></textarea>
+      </div>
+      <div class="flex justify-end gap-3">
+        <button type="button" onclick="cancelarSolicitud()" class="btn-secondary">Cancelar</button>
+        <button type="submit" class="btn-primary flex items-center gap-2"><i class="fas fa-paper-plane"></i> Solicitar</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/app/vacaciones.js"></script>
+{% endblock %}
